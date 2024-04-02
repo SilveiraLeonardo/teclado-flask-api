@@ -1,5 +1,6 @@
 import os
 import psycopg2
+from dotenv import load_dotenv
 
 from flask import Flask, jsonify
 from flask_smorest import Api
@@ -19,6 +20,8 @@ def create_app(db_url=None):
 
 	app = Flask(__name__)
 
+	load_dotenv()
+	
 	# propagate exception if it happens inside an extension of flask
 	# to the main app, so we can see it
 	app.config["PROPAGATE_EXCEPTION"] = True
@@ -32,7 +35,7 @@ def create_app(db_url=None):
 	app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
 	app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
 
-	app.config["SQLALCHEMY_DATABASE_URI"] = db_url or "postgresql+psycopg2://ls27091994:new_password@localhost:5432/teclado"
+	app.config["SQLALCHEMY_DATABASE_URI"] = db_url or os.getenv("DATABASE_URL") #, "postgresql+psycopg2://ls27091994:new_password@localhost:5432/teclado")
 	app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 	# connects the sqlalchemy to flask app
 	db.init_app(app)
