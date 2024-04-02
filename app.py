@@ -1,15 +1,17 @@
 import os
 import psycopg2
-from dotenv import load_dotenv
+import redis
 
 from flask import Flask, jsonify
 from flask_smorest import Api
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
+from dotenv import load_dotenv
+from rq import Queue
 
 from db import db
-import models
 from blocklist import BLOCKLIST
+import models
 
 from resources.item import blp as ItemBlueprint
 from resources.store import blp as StoreBlueprint
@@ -21,6 +23,11 @@ def create_app(db_url=None):
 	app = Flask(__name__)
 
 	load_dotenv()
+
+	connection = redis.from_url(
+		os.getenv("REDIS_URL")
+	)
+	app.queue = Queue("emails", connection=connection)
 	
 	# propagate exception if it happens inside an extension of flask
 	# to the main app, so we can see it
